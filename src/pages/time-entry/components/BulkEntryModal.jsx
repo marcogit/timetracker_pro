@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import Icon from '../../../components/AppIcon';
 
-const BulkEntryModal = ({ isOpen, onClose, projects, tasks, onSubmit }) => {
+const BulkEntryModal = ({ isOpen, onClose, onSubmit }) => {
   const [entries, setEntries] = useState([
     {
       id: 1,
       date: new Date().toISOString().split('T')[0],
-      project: '',
-      task: '',
       startTime: '',
       endTime: '',
       duration: '',
@@ -49,8 +47,6 @@ const BulkEntryModal = ({ isOpen, onClose, projects, tasks, onSubmit }) => {
     const newEntry = {
       id: Date.now(),
       date: new Date().toISOString().split('T')[0],
-      project: '',
-      task: '',
       startTime: '',
       endTime: '',
       duration: '',
@@ -67,7 +63,7 @@ const BulkEntryModal = ({ isOpen, onClose, projects, tasks, onSubmit }) => {
 
   const handleSubmit = () => {
     const validEntries = entries.filter(entry => 
-      entry.project && entry.task && entry.duration && entry.description.trim()
+      entry.duration && entry.description.trim()
     );
     
     if (validEntries.length === 0) {
@@ -75,20 +71,7 @@ const BulkEntryModal = ({ isOpen, onClose, projects, tasks, onSubmit }) => {
       return;
     }
     
-    const formattedEntries = validEntries.map(entry => {
-      const selectedProject = projects.find(p => p.id === parseInt(entry.project));
-      return {
-        ...entry,
-        project: selectedProject?.name || '',
-        projectId: entry.project
-      };
-    });
-    
-    onSubmit(formattedEntries);
-  };
-
-  const getAvailableTasks = (projectId) => {
-    return projectId ? tasks[projectId] || [] : [];
+    onSubmit(validEntries);
   };
 
   if (!isOpen) return null;
@@ -142,58 +125,6 @@ const BulkEntryModal = ({ isOpen, onClose, projects, tasks, onSubmit }) => {
 
                   <div>
                     <label className="block text-sm font-body-medium text-text-primary mb-1">
-                      Project
-                    </label>
-                    <select
-                      value={entry.project}
-                      onChange={(e) => handleEntryChange(entry.id, 'project', e.target.value)}
-                      className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    >
-                      <option value="">Select project</option>
-                      {projects.map(project => (
-                        <option key={project.id} value={project.id}>
-                          {project.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-body-medium text-text-primary mb-1">
-                      Task
-                    </label>
-                    <select
-                      value={entry.task}
-                      onChange={(e) => handleEntryChange(entry.id, 'task', e.target.value)}
-                      disabled={!entry.project}
-                      className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-secondary-100 disabled:cursor-not-allowed"
-                    >
-                      <option value="">Select task</option>
-                      {getAvailableTasks(entry.project).map(task => (
-                        <option key={task} value={task}>
-                          {task}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-body-medium text-text-primary mb-1">
-                      Duration
-                    </label>
-                    <input
-                      type="text"
-                      value={entry.duration}
-                      onChange={(e) => handleEntryChange(entry.id, 'duration', e.target.value)}
-                      placeholder="0:00"
-                      className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-body-medium text-text-primary mb-1">
                       Start Time
                     </label>
                     <input
@@ -215,6 +146,19 @@ const BulkEntryModal = ({ isOpen, onClose, projects, tasks, onSubmit }) => {
                       className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                   </div>
+
+                  <div>
+                    <label className="block text-sm font-body-medium text-text-primary mb-1">
+                      Duration
+                    </label>
+                    <input
+                      type="text"
+                      value={entry.duration}
+                      onChange={(e) => handleEntryChange(entry.id, 'duration', e.target.value)}
+                      placeholder="0:00"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -224,7 +168,7 @@ const BulkEntryModal = ({ isOpen, onClose, projects, tasks, onSubmit }) => {
                   <textarea
                     value={entry.description}
                     onChange={(e) => handleEntryChange(entry.id, 'description', e.target.value)}
-                    placeholder="Describe the work performed..."
+                    placeholder="Describe your work or add notes..."
                     rows={2}
                     className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
                   />

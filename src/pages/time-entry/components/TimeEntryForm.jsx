@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Icon from '../../../components/AppIcon';
 
-const TimeEntryForm = ({ projects, tasks, selectedDate, onDateChange, onSubmit }) => {
+const TimeEntryForm = ({ selectedDate, onDateChange, onSubmit }) => {
   const [formData, setFormData] = useState({
     date: selectedDate,
-    project: '',
-    task: '',
     startTime: '',
     endTime: '',
     duration: '',
-    breakTime: '0:00',
     description: ''
   });
   const [errors, setErrors] = useState({});
@@ -92,8 +89,6 @@ const TimeEntryForm = ({ projects, tasks, selectedDate, onDateChange, onSubmit }
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.project) newErrors.project = 'Project is required';
-    if (!formData.task) newErrors.task = 'Task is required';
     if (!isTimerMode && !formData.startTime) newErrors.startTime = 'Start time is required';
     if (!isTimerMode && !formData.endTime) newErrors.endTime = 'End time is required';
     if (!formData.duration) newErrors.duration = 'Duration is required';
@@ -115,11 +110,8 @@ const TimeEntryForm = ({ projects, tasks, selectedDate, onDateChange, onSubmit }
   const handleSubmit = (action) => {
     if (!validateForm()) return;
     
-    const selectedProject = projects.find(p => p.id === parseInt(formData.project));
     const entryData = {
       ...formData,
-      project: selectedProject?.name || '',
-      projectId: formData.project,
       action // 'save' or 'submit'
     };
     
@@ -128,20 +120,15 @@ const TimeEntryForm = ({ projects, tasks, selectedDate, onDateChange, onSubmit }
     // Reset form
     setFormData({
       date: selectedDate,
-      project: '',
-      task: '',
       startTime: '',
       endTime: '',
       duration: '',
-      breakTime: '0:00',
       description: ''
     });
     setErrors({});
     setIsTimerRunning(false);
     setElapsedTime(0);
   };
-
-  const availableTasks = formData.project ? tasks[formData.project] || [] : [];
 
   return (
     <form className="space-y-6">
@@ -188,56 +175,6 @@ const TimeEntryForm = ({ projects, tasks, selectedDate, onDateChange, onSubmit }
               Timer Mode
             </button>
           </div>
-        </div>
-      </div>
-
-      {/* Project and Task Selection */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-body-medium text-text-primary mb-2">
-            Project *
-          </label>
-          <select
-            value={formData.project}
-            onChange={(e) => handleInputChange('project', e.target.value)}
-            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
-              errors.project ? 'border-error' : 'border-border'
-            }`}
-          >
-            <option value="">Select a project</option>
-            {projects.map(project => (
-              <option key={project.id} value={project.id}>
-                {project.name} - {project.client}
-              </option>
-            ))}
-          </select>
-          {errors.project && (
-            <p className="text-error text-sm mt-1">{errors.project}</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-body-medium text-text-primary mb-2">
-            Task *
-          </label>
-          <select
-            value={formData.task}
-            onChange={(e) => handleInputChange('task', e.target.value)}
-            disabled={!formData.project}
-            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
-              errors.task ? 'border-error' : 'border-border'
-            } ${!formData.project ? 'bg-secondary-50 cursor-not-allowed' : ''}`}
-          >
-            <option value="">Select a task</option>
-            {availableTasks.map(task => (
-              <option key={task} value={task}>
-                {task}
-              </option>
-            ))}
-          </select>
-          {errors.task && (
-            <p className="text-error text-sm mt-1">{errors.task}</p>
-          )}
         </div>
       </div>
 
@@ -303,42 +240,23 @@ const TimeEntryForm = ({ projects, tasks, selectedDate, onDateChange, onSubmit }
 
           <div>
             <label className="block text-sm font-body-medium text-text-primary mb-2">
-              Break Time
+              Duration *
             </label>
             <input
               type="text"
-              value={formData.breakTime}
-              onChange={(e) => handleInputChange('breakTime', e.target.value)}
+              value={formData.duration}
+              onChange={(e) => handleInputChange('duration', e.target.value)}
               placeholder="0:00"
-              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                errors.duration ? 'border-error' : 'border-border'
+              }`}
             />
+            {errors.duration && (
+              <p className="text-error text-sm mt-1">{errors.duration}</p>
+            )}
           </div>
         </div>
       )}
-
-      {/* Duration Display */}
-      <div>
-        <label className="block text-sm font-body-medium text-text-primary mb-2">
-          Duration *
-        </label>
-        <div className="flex items-center space-x-2">
-          <input
-            type="text"
-            value={formData.duration}
-            onChange={(e) => handleInputChange('duration', e.target.value)}
-            placeholder="0:00"
-            className={`flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
-              errors.duration ? 'border-error' : 'border-border'
-            }`}
-          />
-          <div className="text-sm text-text-secondary">
-            Format: H:MM
-          </div>
-        </div>
-        {errors.duration && (
-          <p className="text-error text-sm mt-1">{errors.duration}</p>
-        )}
-      </div>
 
       {/* Description */}
       <div>
@@ -348,7 +266,7 @@ const TimeEntryForm = ({ projects, tasks, selectedDate, onDateChange, onSubmit }
         <textarea
           value={formData.description}
           onChange={(e) => handleInputChange('description', e.target.value)}
-          placeholder="Describe the work performed..."
+          placeholder="Describe your work or add notes..."
           rows={4}
           maxLength={500}
           className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none ${

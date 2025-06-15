@@ -4,24 +4,7 @@ import Icon from '../../../components/AppIcon';
 const TimerWidget = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [currentSession, setCurrentSession] = useState(0);
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [selectedTask, setSelectedTask] = useState(null);
-
-  // Mock projects data
-  const projects = [
-    { id: 1, name: 'Website Redesign', color: '#2563EB', client: 'TechCorp' },
-    { id: 2, name: 'Mobile App Development', color: '#059669', client: 'StartupXYZ' },
-    { id: 3, name: 'Database Migration', color: '#DC2626', client: 'Enterprise Inc' },
-    { id: 4, name: 'API Integration', color: '#7C3AED', client: 'CloudTech' }
-  ];
-
-  const tasks = [
-    { id: 1, name: 'Frontend Development', projectId: 1 },
-    { id: 2, name: 'Backend Development', projectId: 1 },
-    { id: 3, name: 'UI/UX Design', projectId: 2 },
-    { id: 4, name: 'Testing & QA', projectId: 3 },
-    { id: 5, name: 'Documentation', projectId: 4 }
-  ];
+  const [description, setDescription] = useState('');
 
   // Timer effect
   useEffect(() => {
@@ -44,34 +27,26 @@ const TimerWidget = () => {
   };
 
   const handleStartStop = () => {
-    if (!selectedProject || !selectedTask) {
-      alert('Please select a project and task before starting the timer.');
-      return;
-    }
     setIsRunning(!isRunning);
   };
 
   const handleReset = () => {
     setIsRunning(false);
     setCurrentSession(0);
+    setDescription('');
   };
 
   const handleSaveEntry = () => {
     if (currentSession > 0) {
       // Mock save functionality
       console.log('Saving time entry:', {
-        project: selectedProject,
-        task: selectedTask,
         duration: currentSession,
+        description,
         timestamp: new Date()
       });
       handleReset();
       alert('Time entry saved successfully!');
     }
-  };
-
-  const getFilteredTasks = () => {
-    return tasks.filter(task => task.projectId === selectedProject?.id);
   };
 
   const todayTotal = 27000; // 7.5 hours in seconds
@@ -108,7 +83,6 @@ const TimerWidget = () => {
                     ? 'bg-error hover:bg-red-600 shadow-lg' 
                     : 'bg-primary hover:bg-primary-700 shadow-lg'
                 }`}
-                disabled={!selectedProject || !selectedTask}
               >
                 <Icon 
                   name={isRunning ? 'Pause' : 'Play'} 
@@ -142,90 +116,25 @@ const TimerWidget = () => {
           </div>
         </div>
 
-        {/* Project & Task Selection */}
+        {/* Description Section */}
         <div className="space-y-6">
           <div>
             <h3 className="text-lg font-heading-medium text-text-primary mb-4">Current Activity</h3>
             
-            {/* Project Selection */}
-            <div className="mb-4">
-              <label className="block text-sm font-body-medium text-text-primary mb-2">
-                Project
-              </label>
-              <div className="relative">
-                <select
-                  value={selectedProject?.id || ''}
-                  onChange={(e) => {
-                    const project = projects.find(p => p.id === parseInt(e.target.value));
-                    setSelectedProject(project);
-                    setSelectedTask(null);
-                  }}
-                  className="w-full px-4 py-3 bg-surface border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none"
-                >
-                  <option value="">Select a project...</option>
-                  {projects.map(project => (
-                    <option key={project.id} value={project.id}>
-                      {project.name} - {project.client}
-                    </option>
-                  ))}
-                </select>
-                <Icon 
-                  name="ChevronDown" 
-                  size={20} 
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-secondary pointer-events-none" 
-                />
-              </div>
-            </div>
-
-            {/* Task Selection */}
+            {/* Description Input */}
             <div className="mb-6">
               <label className="block text-sm font-body-medium text-text-primary mb-2">
-                Task
+                Description
               </label>
-              <div className="relative">
-                <select
-                  value={selectedTask?.id || ''}
-                  onChange={(e) => {
-                    const task = tasks.find(t => t.id === parseInt(e.target.value));
-                    setSelectedTask(task);
-                  }}
-                  disabled={!selectedProject}
-                  className="w-full px-4 py-3 bg-surface border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none disabled:bg-secondary-50 disabled:text-text-secondary"
-                >
-                  <option value="">Select a task...</option>
-                  {getFilteredTasks().map(task => (
-                    <option key={task.id} value={task.id}>
-                      {task.name}
-                    </option>
-                  ))}
-                </select>
-                <Icon 
-                  name="ChevronDown" 
-                  size={20} 
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-secondary pointer-events-none" 
-                />
-              </div>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="What are you working on?"
+                rows={4}
+                className="w-full px-4 py-3 bg-surface border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              />
             </div>
 
-            {/* Current Selection Display */}
-            {selectedProject && selectedTask && (
-              <div className="bg-primary-50 rounded-lg p-4 border border-primary-100">
-                <div className="flex items-center space-x-3">
-                  <div 
-                    className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: selectedProject.color }}
-                  ></div>
-                  <div>
-                    <p className="font-body-medium text-text-primary text-sm">
-                      {selectedProject.name}
-                    </p>
-                    <p className="text-text-secondary text-xs">
-                      {selectedTask.name} • {selectedProject.client}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Quick Break Button */}

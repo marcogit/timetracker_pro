@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
 import Icon from '../../../components/AppIcon';
 
-const RecentActivity = ({ timeEntries, projects }) => {
+const RecentActivity = ({ timeEntries }) => {
   const [editingEntry, setEditingEntry] = useState(null);
-
-  const getProjectColor = (projectName) => {
-    const project = projects.find(p => p.name === projectName);
-    return project?.color || '#64748B';
-  };
 
   const handleEdit = (entry) => {
     setEditingEntry(entry.id);
@@ -69,16 +64,6 @@ const RecentActivity = ({ timeEntries, projects }) => {
           <div key={entry.id} className="p-6 hover:bg-secondary-50 transition-colors duration-150 ease-out">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <div className="flex items-center space-x-3 mb-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: getProjectColor(entry.project) }}
-                  />
-                  <h4 className="font-body-medium text-text-primary">{entry.project}</h4>
-                  <span className="text-sm text-text-secondary">•</span>
-                  <span className="text-sm text-text-secondary">{entry.task}</span>
-                </div>
-                
                 <div className="flex items-center space-x-4 mb-3 text-sm text-text-secondary">
                   <div className="flex items-center space-x-1">
                     <Icon name="Clock" size={14} />
@@ -88,12 +73,6 @@ const RecentActivity = ({ timeEntries, projects }) => {
                     <Icon name="Timer" size={14} />
                     <span className="font-data">{entry.duration}</span>
                   </div>
-                  {entry.breakTime && entry.breakTime !== '0:00' && (
-                    <div className="flex items-center space-x-1">
-                      <Icon name="Coffee" size={14} />
-                      <span>Break: {entry.breakTime}</span>
-                    </div>
-                  )}
                 </div>
                 
                 <p className="text-sm text-text-secondary mb-3 line-clamp-2">
